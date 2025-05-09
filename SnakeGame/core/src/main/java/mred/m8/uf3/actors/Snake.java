@@ -11,7 +11,7 @@ import com.badlogic.gdx.utils.Array;
 
 public class Snake {
     private Array<Vector2> body = new Array<>();
-    private Vector2 direction = new Vector2(1, 0); // derecha
+    private Vector2 direction = new Vector2(1, 0);
     private float timer = 0;
     private float moveTime = 0.2f;
     private boolean grow = false;
@@ -27,11 +27,11 @@ public class Snake {
             move();
         }
 
-        // Input básico con teclas (puedes poner touch también)
-        if (Gdx.input.isKeyPressed(Input.Keys.UP)) direction.set(0, 1);
-        if (Gdx.input.isKeyPressed(Input.Keys.DOWN)) direction.set(0, -1);
-        if (Gdx.input.isKeyPressed(Input.Keys.LEFT)) direction.set(-1, 0);
-        if (Gdx.input.isKeyPressed(Input.Keys.RIGHT)) direction.set(1, 0);
+        // Configuración CORRECTA para landscape (horizontal)
+        if (Gdx.input.isKeyPressed(Input.Keys.UP)) direction.set(0, 1);    // Arriba (Y+)
+        if (Gdx.input.isKeyPressed(Input.Keys.DOWN)) direction.set(0, -1); // Abajo (Y-)
+        if (Gdx.input.isKeyPressed(Input.Keys.LEFT)) direction.set(-1, 0); // Izquierda (X-)
+        if (Gdx.input.isKeyPressed(Input.Keys.RIGHT)) direction.set(1, 0); // Derecha (X+)
     }
 
     private void move() {
@@ -63,7 +63,7 @@ public class Snake {
     public void draw(ShapeRenderer shapeRenderer) {
         shapeRenderer.setColor(Color.GREEN);
         for (Vector2 part : body) {
-            shapeRenderer.rect(part.x * 16, part.y * 16, 16, 16);
+            shapeRenderer.rect(part.x * 16, part.y * 16, 32, 32);
         }
     }
 

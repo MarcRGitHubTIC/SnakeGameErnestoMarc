@@ -11,7 +11,7 @@ public class AssetManager {
 
     public static void load() {
         apple = new Texture(Gdx.files.internal("apple.png"));
-        font = new BitmapFont(Gdx.files.internal("default.fnt"));
+        font = new BitmapFont(Gdx.files.internal("snake.fnt"));
     }
 
     public static void dispose() {

@@ -1,9 +1,10 @@
 package mred.m8.uf3.actors;
 
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
+
+import mred.m8.uf3.helpers.AssetManager;
 
 public class Apple {
     private Vector2 position;
@@ -21,7 +22,6 @@ public class Apple {
     }
 
     public void draw(SpriteBatch batch) {
-        batch.draw(new Texture("apple.png"), position.x * 16, position.y * 16, 16, 16);
+        batch.draw(AssetManager.apple, position.x * 16, position.y * 16, 32, 32);
     }
 }
-

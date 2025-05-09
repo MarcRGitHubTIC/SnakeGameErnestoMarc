@@ -12,6 +12,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import mred.m8.uf3.SnakeGame;
 import mred.m8.uf3.actors.Apple;
 import mred.m8.uf3.actors.Snake;
+import mred.m8.uf3.helpers.AssetManager;
 
 public class GameScreen implements Screen {
     private final SnakeGame game;
@@ -48,23 +49,34 @@ public class GameScreen implements Screen {
             game.setScreen(new StartScreen(game));
         }
 
-        // Dibujo con ShapeRenderer
+        // Dibujo ShapeRenderer
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
         snake.draw(shapeRenderer);
         shapeRenderer.end();
 
-        // Dibujo del texto
+        // Dibujo apperu
         batch.begin();
+        apple.draw(batch);
         font.draw(batch, "Score: " + score, 10, 470);
         batch.end();
     }
 
 
     @Override public void resize(int w, int h) {}
-    @Override public void show() {}
+    @Override
+    public void show() {
+        AssetManager.load();
+        snake = new Snake();
+        apple = new Apple();
+        font = AssetManager.font;
+    }
     @Override public void hide() {}
     @Override public void pause() {}
     @Override public void resume() {}
-    @Override public void dispose() {}
+    @Override
+    public void dispose() {
+        AssetManager.dispose();
+        shapeRenderer.dispose();
+    }
 }
 
