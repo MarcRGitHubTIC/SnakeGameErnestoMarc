@@ -15,6 +15,7 @@ public class Snake {
     private float timer = 0;
     private float moveTime = 0.2f;
     private boolean grow = false;
+    private Direction currentDirection = Direction.RIGHT;
 
     public Snake() {
         body.add(new Vector2(5, 5));
@@ -58,6 +59,15 @@ public class Snake {
             if (body.first().epsilonEquals(body.get(i), 0.1f)) return true;
         }
         return false;
+    }
+
+    public void setDirection(Direction dir){
+        if((dir == Direction.LEFT && currentDirection != Direction.RIGHT) ||
+            (dir == Direction.RIGHT && currentDirection != Direction.LEFT) ||
+            (dir == Direction.UP && currentDirection != Direction.DOWN) ||
+            (dir == Direction.DOWN && currentDirection != Direction.UP)){
+            currentDirection = dir;
+        }
     }
 
     public void draw(ShapeRenderer shapeRenderer) {
