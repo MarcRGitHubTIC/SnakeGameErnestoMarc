@@ -1,17 +1,11 @@
 package mred.m8.uf3.actors;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
-import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.OrthographicCamera;
+
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
-
-import mred.m8.uf3.helpers.AssetManager;
-import mred.m8.uf3.screens.StartScreen;
 
 public class Snake {
 
@@ -26,8 +20,8 @@ public class Snake {
     private float rotation = 0;
 
     // ... (otras variables)
-    private static final int GRID_WIDTH = 20;  // Ancho en celdas (ajusta según tu juego)
-    private static final int GRID_HEIGHT = 15; // Alto en celdas (ajusta según tu juego)
+    private static final int GRID_WIDTH = 20;
+    private static final int GRID_HEIGHT = 15;
 
     public Snake() {
         headTexture = new Texture("head.png");
@@ -48,13 +42,13 @@ public class Snake {
     }
 
     private void move() {
-        // Guardar posiciones anteriores
+
         Array<Vector2> previousPositions = new Array<>();
         for (Vector2 segment : body) {
             previousPositions.add(new Vector2(segment));
         }
 
-        // Mover la cabeza
+
         Vector2 head = body.first();
         switch (currentDirection) {
             case UP: head.y += 1; break;
@@ -63,19 +57,19 @@ public class Snake {
             case RIGHT: head.x += 1; break;
         }
 
-        // Aplicar teletransporte si sale de los límites
+
         if (head.x >= GRID_WIDTH) head.x = 0;
         else if (head.x < 0) head.x = GRID_WIDTH - 1;
 
         if (head.y >= GRID_HEIGHT) head.y = 0;
         else if (head.y < 0) head.y = GRID_HEIGHT - 1;
 
-        // Mover el cuerpo
+
         for (int i = 1; i < body.size; i++) {
             body.get(i).set(previousPositions.get(i-1));
         }
 
-        // Manejar crecimiento
+
         if (grow) {
             body.add(new Vector2(previousPositions.peek()));
             grow = false;
@@ -91,7 +85,7 @@ public class Snake {
         Vector2 head = body.first();
         Vector2 applePos = apple.getPosition();
 
-        // Verifica colisión con margen de error
+
         return Math.abs(head.x - applePos.x) < 0.5f &&
             Math.abs(head.y - applePos.y) < 0.5f;
     }
@@ -157,14 +151,14 @@ public class Snake {
         }
     }
 
-    // Añade este método para liberar recursos
+
     public void dispose() {
         headTexture.dispose();
         bodyTexture.dispose();
     }
 
     public Array<Vector2> getBody() {
-        return body; // Método que devuelve el cuerpo de la serpiente
+        return body;
     }
 
 

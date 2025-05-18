@@ -46,10 +46,10 @@ public class GameScreen implements Screen {
         this.camera = camera;
 
 
-        stage = new Stage(new ScreenViewport());//capturar eventos táctiles
+        stage = new Stage(new ScreenViewport());
 
         Gdx.input.setInputProcessor(stage);
-        //Cargar las texturas de las flechas direccionales
+
         Texture upArrow = new Texture("up.png");
         Texture downArrow = new Texture("down.png");
         Texture rightArrow = new Texture("right.png");
@@ -81,38 +81,38 @@ public class GameScreen implements Screen {
         buttonRight = new ImageButton(rightStyle);
         buttonRight.getImage().setScale(3f);
 
-        //posicionar botones
+
         buttonUp.setPosition(300, 200 + 164);
         buttonDown.setPosition(300, 200 - 164);
         buttonLeft.setPosition(300 - 164, 200);
         buttonRight.setPosition(300 + 164, 200);
 
-        //agregamos los listeners
+
         buttonUp.addListener(new ClickListener() {
             public void clicked(InputEvent event, float x, float y) {
                 snake.setDirection(Direction.UP);
             }
         });
-        //agregamos los listeners
+
         buttonDown.addListener(new ClickListener() {
             public void clicked(InputEvent event, float x, float y) {
                 snake.setDirection(Direction.DOWN);
             }
         });
-        //agregamos los listeners
+
         buttonRight.addListener(new ClickListener() {
             public void clicked(InputEvent event, float x, float y) {
                 snake.setDirection(Direction.RIGHT);
             }
         });
-        //agregamos los listeners
+
         buttonLeft.addListener(new ClickListener() {
             public void clicked(InputEvent event, float x, float y) {
                 snake.setDirection(Direction.LEFT);
             }
         });
 
-        //añadimos botones al stage
+
         stage.addActor(buttonUp);
         stage.addActor(buttonDown);
         stage.addActor(buttonRight);
@@ -128,28 +128,28 @@ public class GameScreen implements Screen {
         Gdx.gl.glClearColor(0.6745f, 0.7137f, 0.0275f, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
-        // 1. Lógica
+
         snake.update(delta);
 
-        // 2. Colisiones
+
         if (snake.collidesWithApple(apple)) {
             snake.grow();
             apple.respawn(snake);
             score++;
         }
         if (snake.checkSelfCollision()) {
-            game.setScreen(new StartScreen(game));
+            game.setScreen(new GameOverScreen(game, score));
             return;
         }
 
-        // 3. Dibujar elementos del juego
+
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
-        batch.begin(); // Iniciar batch para la cabeza
-        snake.draw( batch); // Ahora recibe ambos renderers
-        batch.end(); // Cerrar batch
+        batch.begin();
+        snake.draw( batch);
+        batch.end();
         shapeRenderer.end();
 
-        // Dibujar manzana y puntuación
+
         batch.begin();
         apple.draw(batch);
         if (font != null) {
@@ -157,7 +157,7 @@ public class GameScreen implements Screen {
         }
         batch.end();
 
-        // 4. Interfaz (botones)
+
         stage.act(delta);
         stage.draw();
     }
@@ -174,7 +174,7 @@ public class GameScreen implements Screen {
         score = 0;
         Gdx.input.setInputProcessor(stage);
 
-        // Asegura que la cámara esté actualizada
+
         camera.update();
         shapeRenderer.setProjectionMatrix(camera.combined);
     }
@@ -203,18 +203,18 @@ public class GameScreen implements Screen {
         score = 0;
         stage.clear();
 
-        // Vuelve a añadir los botones al stage
+
         stage.addActor(buttonUp);
         stage.addActor(buttonDown);
         stage.addActor(buttonLeft);
         stage.addActor(buttonRight);
 
-        // Reconfigura todos los listeners
+
         setupButtonListeners();
     }
 
     private void setupButtonListeners() {
-        // Limpia y reasigna todos los listeners
+
         buttonUp.clearListeners();
         buttonUp.addListener(new ClickListener() {
             public void clicked(InputEvent event, float x, float y) {
@@ -243,7 +243,7 @@ public class GameScreen implements Screen {
             }
         });
 
-        // Asegura que el input processor esté activo
+
         Gdx.input.setInputProcessor(stage);
     }
 

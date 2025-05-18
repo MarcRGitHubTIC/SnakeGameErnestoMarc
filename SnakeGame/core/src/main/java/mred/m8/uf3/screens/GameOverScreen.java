@@ -1,5 +1,4 @@
 package mred.m8.uf3.screens;
-
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.GL20;
@@ -10,45 +9,35 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import mred.m8.uf3.SnakeGame;
 import mred.m8.uf3.helpers.AssetManager;
 
-public class StartScreen extends ScreenAdapter {
+public class GameOverScreen extends ScreenAdapter {
     private SnakeGame game;
     private SpriteBatch batch;
     private OrthographicCamera camera;
     private BitmapFont font;
+    private int finalScore;
 
-    public StartScreen(SnakeGame game) {
+    public GameOverScreen(SnakeGame game, int score) {
         this.game = game;
         this.batch = game.batch;
         this.camera = game.camera;
         this.font = AssetManager.getFont();
+        this.finalScore = score;
     }
 
     @Override
     public void render(float delta) {
-        Gdx.gl.glClearColor(1, 0, 0, 0);
+        Gdx.gl.glClearColor(0.5f, 0, 0, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
         camera.update();
         batch.setProjectionMatrix(camera.combined);
+
         batch.begin();
-        font.draw(batch, "Snake Game.\n \nTap screen to play", 300, 400);
+        font.draw(batch, "Game Over\nScore: " + finalScore + "\nTap to Retry", 250, 300);
         batch.end();
 
         if (Gdx.input.justTouched()) {
             game.setScreen(game.getGameScreen());
         }
     }
-
-    @Override
-    public void show() {}
-    @Override
-    public void resize(int width, int height) {}
-    @Override
-    public void pause() {}
-    @Override
-    public void resume() {}
-    @Override
-    public void hide() {}
-    @Override
-    public void dispose() {}
 }
