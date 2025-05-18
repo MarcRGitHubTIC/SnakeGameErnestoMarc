@@ -3,21 +3,39 @@ package mred.m8.uf3.actors;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 
+import mred.m8.uf3.helpers.AssetManager;
+import mred.m8.uf3.screens.StartScreen;
+
 public class Snake {
+
     private Array<Vector2> body = new Array<>();
     private Vector2 direction = new Vector2(1, 0);
     private float timer = 0;
     private float moveTime = 0.2f;
     private boolean grow = false;
     private Direction currentDirection = Direction.RIGHT;
+    private Texture headTexture;
+    private Texture bodyTexture;
+    private float rotation = 0;
+
+    // ... (otras variables)
+    private static final int GRID_WIDTH = 20;  // Ancho en celdas (ajusta según tu juego)
+    private static final int GRID_HEIGHT = 15; // Alto en celdas (ajusta según tu juego)
 
     public Snake() {
+        headTexture = new Texture("head.png");
+        bodyTexture = new Texture("body.png");
+
+        headTexture.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
+        bodyTexture.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
+
         body.add(new Vector2(5, 5));
     }
 
@@ -27,31 +45,55 @@ public class Snake {
             timer = 0;
             move();
         }
-
-        // Configuración CORRECTA para landscape (horizontal)
-        if (Gdx.input.isKeyPressed(Input.Keys.UP)) direction.set(0, 1);    // Arriba (Y+)
-        if (Gdx.input.isKeyPressed(Input.Keys.DOWN)) direction.set(0, -1); // Abajo (Y-)
-        if (Gdx.input.isKeyPressed(Input.Keys.LEFT)) direction.set(-1, 0); // Izquierda (X-)
-        if (Gdx.input.isKeyPressed(Input.Keys.RIGHT)) direction.set(1, 0); // Derecha (X+)
     }
 
     private void move() {
-        Vector2 head = new Vector2(body.first());
-        head.add(direction);
-        body.insert(0, head);
-        if (!grow) {
-            body.pop();
-        } else {
+        // Guardar posiciones anteriores
+        Array<Vector2> previousPositions = new Array<>();
+        for (Vector2 segment : body) {
+            previousPositions.add(new Vector2(segment));
+        }
+
+        // Mover la cabeza
+        Vector2 head = body.first();
+        switch (currentDirection) {
+            case UP: head.y += 1; break;
+            case DOWN: head.y -= 1; break;
+            case LEFT: head.x -= 1; break;
+            case RIGHT: head.x += 1; break;
+        }
+
+        // Aplicar teletransporte si sale de los límites
+        if (head.x >= GRID_WIDTH) head.x = 0;
+        else if (head.x < 0) head.x = GRID_WIDTH - 1;
+
+        if (head.y >= GRID_HEIGHT) head.y = 0;
+        else if (head.y < 0) head.y = GRID_HEIGHT - 1;
+
+        // Mover el cuerpo
+        for (int i = 1; i < body.size; i++) {
+            body.get(i).set(previousPositions.get(i-1));
+        }
+
+        // Manejar crecimiento
+        if (grow) {
+            body.add(new Vector2(previousPositions.peek()));
             grow = false;
         }
     }
-
     public void grow() {
         grow = true;
     }
 
     public boolean collidesWithApple(Apple apple) {
-        return body.first().epsilonEquals(apple.getPosition(), 0.1f);
+        if (apple == null || body.size == 0) return false;
+
+        Vector2 head = body.first();
+        Vector2 applePos = apple.getPosition();
+
+        // Verifica colisión con margen de error
+        return Math.abs(head.x - applePos.x) < 0.5f &&
+            Math.abs(head.y - applePos.y) < 0.5f;
     }
 
     public boolean checkSelfCollision() {
@@ -70,12 +112,61 @@ public class Snake {
         }
     }
 
-    public void draw(ShapeRenderer shapeRenderer) {
-        shapeRenderer.setColor(Color.GREEN);
-        for (Vector2 part : body) {
-            shapeRenderer.rect(part.x * 16, part.y * 16, 32, 32);
+    public void draw(SpriteBatch batch) {
+        for(int i = 1; i< body.size; i++){
+            Vector2 segment = body.get(i);
+            batch.draw(bodyTexture,
+                segment.x * 32,
+                segment.y * 32,
+                16,16,
+                32,32,
+                1,1,
+                0,
+                0,0,
+                32,32,
+                false,false);
+        }
+        updateHeadRotation();
+        Vector2 head = body.first();
+        batch.draw(headTexture,
+            head.x * 32,
+            head.y * 32,
+            16,16,
+            32,32,
+            1,1,
+            rotation,
+            0,0,
+            32,32,
+            false,false);
+
+    }
+    private void updateHeadRotation() {
+        switch(currentDirection) {
+            case UP:
+                rotation = 0;
+                break;
+            case RIGHT:
+                rotation = 270;
+                break;
+            case DOWN:
+                rotation = 180;
+                break;
+            case LEFT:
+                rotation = 90;
+                break;
         }
     }
+
+    // Añade este método para liberar recursos
+    public void dispose() {
+        headTexture.dispose();
+        bodyTexture.dispose();
+    }
+
+    public Array<Vector2> getBody() {
+        return body; // Método que devuelve el cuerpo de la serpiente
+    }
+
 
 }
 

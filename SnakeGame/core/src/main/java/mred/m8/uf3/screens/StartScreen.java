@@ -21,7 +21,7 @@ public class StartScreen extends ScreenAdapter {
         this.game = game;
         this.batch = game.batch;
         this.camera = game.camera;
-        this.font = AssetManager.font;
+        this.font = AssetManager.getFont();
     }
 
     @Override
@@ -36,7 +36,7 @@ public class StartScreen extends ScreenAdapter {
         batch.end();
 
         if (Gdx.input.justTouched()) {
-            game.setScreen(new GameScreen(game, batch, camera));
+            game.setScreen(game.getGameScreen());  // Método que devuelve una instancia reutilizable
         }
     }
 

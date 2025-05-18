@@ -33,9 +33,6 @@ public class GameScreen implements Screen {
     private ShapeRenderer shapeRenderer;
     private int score;
     private Stage stage;
-    private Texture upArrow;
-    private Texture downArrow;
-    private Texture rightArrow;
     private ImageButton buttonUp;
     private ImageButton buttonDown;
     private ImageButton buttonLeft;
@@ -48,52 +45,69 @@ public class GameScreen implements Screen {
         this.batch = (SpriteBatch) batch;
         this.camera = camera;
 
+
         stage = new Stage(new ScreenViewport());//capturar eventos táctiles
 
         Gdx.input.setInputProcessor(stage);
         //Cargar las texturas de las flechas direccionales
-        Texture upArrow= new Texture("up.png");
-        Texture downArrow= new Texture("down.png");
-        Texture rightArrow= new Texture("right.png");
-        Texture leftArrow= new Texture("left.png");
+        Texture upArrow = new Texture("up.png");
+        Texture downArrow = new Texture("down.png");
+        Texture rightArrow = new Texture("right.png");
+        Texture leftArrow = new Texture("left.png");
 
-        //crear los botones
-        drawable = new TextureRegionDrawable(new TextureRegion(upArrow));
-        buttonUp= new ImageButton(drawable);
-        drawable = new TextureRegionDrawable(new TextureRegion(downArrow));
-        buttonDown= new ImageButton(drawable);
-        drawable = new TextureRegionDrawable(new TextureRegion(leftArrow));
-        buttonLeft= new ImageButton(drawable);
-        drawable = new TextureRegionDrawable(new TextureRegion(rightArrow));
-        buttonRight= new ImageButton(drawable);
+        TextureRegionDrawable upDrawable = new TextureRegionDrawable(new TextureRegion(upArrow));
+        ImageButton.ImageButtonStyle upStyle = new ImageButton.ImageButtonStyle();
+        upStyle.imageUp = upDrawable;
+        buttonUp = new ImageButton(upStyle);
+        buttonUp.getImage().setScale(3f);
+
+        TextureRegionDrawable downDrawable = new TextureRegionDrawable(new TextureRegion(downArrow));
+        ImageButton.ImageButtonStyle downStyle = new ImageButton.ImageButtonStyle();
+        downStyle.imageUp = downDrawable;
+        buttonDown = new ImageButton(downStyle);
+        buttonDown.getImage().setScale(3f);
+
+
+        TextureRegionDrawable leftDrawable = new TextureRegionDrawable(new TextureRegion(leftArrow));
+        ImageButton.ImageButtonStyle leftStyle = new ImageButton.ImageButtonStyle();
+        leftStyle.imageUp = leftDrawable;
+        buttonLeft = new ImageButton(leftStyle);
+        buttonLeft.getImage().setScale(3f);
+
+
+        TextureRegionDrawable rightDrawable = new TextureRegionDrawable(new TextureRegion(rightArrow));
+        ImageButton.ImageButtonStyle rightStyle = new ImageButton.ImageButtonStyle();
+        rightStyle.imageUp = rightDrawable;
+        buttonRight = new ImageButton(rightStyle);
+        buttonRight.getImage().setScale(3f);
 
         //posicionar botones
-        buttonUp.setPosition(100, 100 + 64);
-        buttonDown.setPosition(100, 100 - 64);
-        buttonLeft.setPosition(100 - 64, 100);
-        buttonRight.setPosition(100 + 64, 100);
+        buttonUp.setPosition(300, 200 + 164);
+        buttonDown.setPosition(300, 200 - 164);
+        buttonLeft.setPosition(300 - 164, 200);
+        buttonRight.setPosition(300 + 164, 200);
 
         //agregamos los listeners
-        buttonUp.addListener(new ClickListener(){
-            public void clicked(InputEvent event, float x, float y){
+        buttonUp.addListener(new ClickListener() {
+            public void clicked(InputEvent event, float x, float y) {
                 snake.setDirection(Direction.UP);
             }
         });
         //agregamos los listeners
-        buttonDown.addListener(new ClickListener(){
-            public void clicked(InputEvent event, float x, float y){
+        buttonDown.addListener(new ClickListener() {
+            public void clicked(InputEvent event, float x, float y) {
                 snake.setDirection(Direction.DOWN);
             }
         });
         //agregamos los listeners
-        buttonRight.addListener(new ClickListener(){
-            public void clicked(InputEvent event, float x, float y){
+        buttonRight.addListener(new ClickListener() {
+            public void clicked(InputEvent event, float x, float y) {
                 snake.setDirection(Direction.RIGHT);
             }
         });
         //agregamos los listeners
-        buttonLeft.addListener(new ClickListener(){
-            public void clicked(InputEvent event, float x, float y){
+        buttonLeft.addListener(new ClickListener() {
+            public void clicked(InputEvent event, float x, float y) {
                 snake.setDirection(Direction.LEFT);
             }
         });
@@ -106,56 +120,132 @@ public class GameScreen implements Screen {
 
         shapeRenderer = new ShapeRenderer();
         score = 0;
+
     }
 
     @Override
     public void render(float delta) {
-        Gdx.gl.glClearColor(0, 0, 0, 1); // fondo negro
+        Gdx.gl.glClearColor(0.6745f, 0.7137f, 0.0275f, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
+        // 1. Lógica
         snake.update(delta);
 
-        stage.act(delta);
-        stage.draw();
-
+        // 2. Colisiones
         if (snake.collidesWithApple(apple)) {
             snake.grow();
-            apple.respawn();
+            apple.respawn(snake);
             score++;
         }
-
         if (snake.checkSelfCollision()) {
             game.setScreen(new StartScreen(game));
+            return;
         }
 
-        // Dibujo ShapeRenderer
+        // 3. Dibujar elementos del juego
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
-        snake.draw(shapeRenderer);
+        batch.begin(); // Iniciar batch para la cabeza
+        snake.draw( batch); // Ahora recibe ambos renderers
+        batch.end(); // Cerrar batch
         shapeRenderer.end();
 
-        // Dibujo apperu
+        // Dibujar manzana y puntuación
         batch.begin();
         apple.draw(batch);
-        font.draw(batch, "Score: " + score, 10, 470);
+        if (font != null) {
+            font.draw(batch, "Score: " + score, 10, 470);
+        }
         batch.end();
+
+        // 4. Interfaz (botones)
+        stage.act(delta);
+        stage.draw();
+    }
+    @Override
+    public void resize(int w, int h) {
     }
 
-
-    @Override public void resize(int w, int h) {}
     @Override
     public void show() {
         AssetManager.load();
         snake = new Snake();
-        apple = new Apple();
-        font = AssetManager.font;
+        apple = new Apple(snake);
+        font = AssetManager.getFont();
+        score = 0;
+        Gdx.input.setInputProcessor(stage);
+
+        // Asegura que la cámara esté actualizada
+        camera.update();
+        shapeRenderer.setProjectionMatrix(camera.combined);
     }
-    @Override public void hide() {}
-    @Override public void pause() {}
-    @Override public void resume() {}
+
+    @Override
+    public void hide() {
+    }
+
+    @Override
+    public void pause() {
+    }
+
+    @Override
+    public void resume() {
+    }
+
     @Override
     public void dispose() {
-        AssetManager.dispose();
         shapeRenderer.dispose();
+        stage.dispose();
     }
+
+    public void reset() {
+        snake = new Snake();
+        apple = new Apple(snake);
+        score = 0;
+        stage.clear();
+
+        // Vuelve a añadir los botones al stage
+        stage.addActor(buttonUp);
+        stage.addActor(buttonDown);
+        stage.addActor(buttonLeft);
+        stage.addActor(buttonRight);
+
+        // Reconfigura todos los listeners
+        setupButtonListeners();
+    }
+
+    private void setupButtonListeners() {
+        // Limpia y reasigna todos los listeners
+        buttonUp.clearListeners();
+        buttonUp.addListener(new ClickListener() {
+            public void clicked(InputEvent event, float x, float y) {
+                snake.setDirection(Direction.UP);
+            }
+        });
+
+        buttonDown.clearListeners();
+        buttonDown.addListener(new ClickListener() {
+            public void clicked(InputEvent event, float x, float y) {
+                snake.setDirection(Direction.DOWN);
+            }
+        });
+
+        buttonLeft.clearListeners();
+        buttonLeft.addListener(new ClickListener() {
+            public void clicked(InputEvent event, float x, float y) {
+                snake.setDirection(Direction.LEFT);
+            }
+        });
+
+        buttonRight.clearListeners();
+        buttonRight.addListener(new ClickListener() {
+            public void clicked(InputEvent event, float x, float y) {
+                snake.setDirection(Direction.RIGHT);
+            }
+        });
+
+        // Asegura que el input processor esté activo
+        Gdx.input.setInputProcessor(stage);
+    }
+
 }
 
